@@ -1,46 +1,92 @@
+//load npm packages inquirer, twitter, spotify and request
 
-// var request = require("request");
+//use to ask for specific user input and restrict choices
+var inquirer = require("inquirer");
 
-var command = process.argv[2];
-var title = process.argv[3];
+//use to get tweets
+var twitter = require("twitter");
 
-function tweets() {
-	//code if command is tweet
-	console.log(command);
-}
+//use to get spotify data
+var spotify = require("spotify");
 
-function spotify() {
-	//code if command is spotify
-	console.log(command);
-}
+//use to make requests to omdb
+var request = require("request");
 
-function movie() {
-	
-}
+//get twitter api keys from keys.js
+var keys = require("./keys.js");
 
-function doWhatItSays() {
-	//code if command is do what it says
-	console.log(command);
-}
+var client = keys.twitterKeys;
 
-switch(command) {
-	case "my-tweets":
-		// tweets();
-		break;
+console.log(client);
 
-	case "spotify-this-song":
-		spotify();
-		break;
+//create user command line interface - get user name and command
+inquirer.prompt([
 
-	case "movie-this":
-		movie();
-		break;
+	{
+	type: "input",
+	name: "userName",
+	message: "Hi, I'm Liri. What's your name?"
+	},
 
-	case "do-what-it-says":
-		doWhatItSays();
-		break;
+	{
+	type: "list",
+	name: "command",
+	message: "What can I do for you?",
+	choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-says"]
+	}
 
-	default:
-		console.log("Please enter one of the following commands: my-tweets, spotify-this-song 'song name here', movie-this 'movie name here' or do-what-it-says");
-}
+]).then(function(user) {
+	switch(user.command) {
+
+		//if command is my-tweets
+		case "my-tweets":
+			var params = {scree_name: "Mary"};
+			client.get("statuses/user_timeline", params, function(error, tweets, response){
+				console.log(tweets);
+			})
+			break;
+
+		//if command is spotify
+		case "spotify-this-song":
+			inquirer.prompt([
+
+			{
+			type: "input",
+			name: "songName",
+			message: "What is the title of the song?"
+			}
+
+			]).then(function(song) {
+				console.log(song.songName);
+			});
+			break;
+
+		//if command is movie-this
+		case "movie-this":
+			inquirer.prompt([
+
+			{
+			type: "input",
+			name: "movieName",
+			message: "What is the title of the movie?"
+			}
+
+			]).then(function(movie) {
+				console.log(movie.movieName);
+			});
+			break;
+
+		//if command is do what it says
+		case "do-what-it-says":
+			doWhatItSays();
+			break;
+
+		default:
+
+	} //end of switch statement
+
+}); // end of .then first set of user input - name and command
+
+
+
 
