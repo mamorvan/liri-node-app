@@ -18,12 +18,21 @@ var request = require("request");
 //get twitter api keys from keys.js
 var keys = require("./keys.js");
 
+//get fs node module to read and write to other files
+var fs = require("fs");
+
+//make twitter client object
 var client = new twitter({
 	consumer_key: keys.twitterKeys.consumer_key,
 	consumer_secret: keys.twitterKeys.consumer_secret,
 	access_token_key: keys.twitterKeys.access_token_key,
 	access_token_secret: keys.twitterKeys.access_token_secret
 });
+
+function spotifyThis(songName) {
+
+
+};
 
 //create user command line interface - get user name and command
 inquirer.prompt([
@@ -67,6 +76,7 @@ inquirer.prompt([
 
 			]).then(function(song) {
 				console.log(song.songName);
+				spotifyThis(song.songName);
 			});
 			break;
 
@@ -87,10 +97,16 @@ inquirer.prompt([
 
 		//if command is do what it says
 		case "do-what-it-says":
-			doWhatItSays();
+			fs.readFile("random.txt", "utf8", function(error,data) {
+			
+			
+			var randomSong = data;
+			console.log(randomSong);
+			spotifyThis(randomSong);
+			});
 			break;
 
-		default:
+		//don't think I need a default? - add one later if there's another possible case		
 
 	} //end of switch statement
 
