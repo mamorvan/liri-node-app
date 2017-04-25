@@ -15,9 +15,12 @@ var request = require("request");
 //get twitter api keys from keys.js
 var keys = require("./keys.js");
 
-var client = keys.twitterKeys;
-
-console.log(client);
+var client = new twitter({
+	consumer_key: keys.twitterKeys.consumer_key,
+	consumer_secret: keys.twitterKeys.consumer_secret,
+	access_token_key: keys.twitterKeys.access_token_key,
+	access_token_secret: keys.twitterKeys.access_token_secret
+});
 
 //create user command line interface - get user name and command
 inquirer.prompt([
@@ -40,9 +43,9 @@ inquirer.prompt([
 
 		//if command is my-tweets
 		case "my-tweets":
-			var params = {scree_name: "Mary"};
+			var params = {screen_name: "CatWoala"};
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
-				console.log(tweets);
+				console.log(tweets); 
 			})
 			break;
 
