@@ -45,9 +45,12 @@ inquirer.prompt([
 		case "my-tweets":
 			var params = {screen_name: "CatWoala"};
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
-				console.log(tweets); 
+				for (var i = 0; i < 20; i++) {
+					console.log(tweets[i].created_at);
+					console.log(tweets[i].text);
+				};
 			})
-			break;
+			break; // end of if command is my-tweets
 
 		//if command is spotify
 		case "spotify-this-song":
