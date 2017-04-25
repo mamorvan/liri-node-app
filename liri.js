@@ -1,10 +1,13 @@
-//load npm packages inquirer, twitter, spotify and request
+//load npm packages inquirer, twitter, spotify, moment and request
 
 //use to ask for specific user input and restrict choices
 var inquirer = require("inquirer");
 
 //use to get tweets
 var twitter = require("twitter");
+
+//use to format tweet dates
+var moment = require("moment");
 
 //use to get spotify data
 var spotify = require("spotify");
@@ -46,7 +49,7 @@ inquirer.prompt([
 			var params = {screen_name: "CatWoala"};
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
 				for (var i = 0; i < 20; i++) {
-					console.log(tweets[i].created_at);
+					console.log(moment(tweets[i].created_at).fromNow() + " on " + moment(tweets[i].created_at).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
 					console.log(tweets[i].text);
 				};
 			})
