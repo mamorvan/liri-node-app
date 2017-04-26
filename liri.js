@@ -239,7 +239,7 @@ inquirer.prompt([
 					//if no movie data is returned 
  					if (JSON.parse(body).Title === undefined) {
  						console.log("I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?");
- 						fs.appendFile("log.txt", "I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?\r", function(error){
+ 						fs.appendFile("log.txt", "I'm sorry :( I can't find that movie.  Can you check your spelling or try another movie?\r", function(error){
 							if (error){
 								console.log("There was an error adding data to log. Details: " + error);
 							}
