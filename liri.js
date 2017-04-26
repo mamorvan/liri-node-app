@@ -126,6 +126,21 @@ function spotifyThis(songName) {
 						console.log("There was an error adding data to log. Details: " + error);
 					}
 				});
+
+				inquirer.prompt([
+					{
+					type: "confirm",
+					name: "songConfirm",
+					message: "Is this the song you wanted?"
+					}
+				]).then(function(confirmSong) {
+					if (confirmSong.songConfirm) {
+						return;
+					}
+					else {
+						spotifyThis(songName);
+					}
+				})
 			}//end of else return a random title match
 		}//end of else a song was entered
 	})//end of spotify search
