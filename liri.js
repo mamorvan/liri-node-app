@@ -46,50 +46,88 @@ function spotifyThis(songName) {
 		//to only get The Sign by Ace of Base - no randomization 
 		//in case of no user input, this is default but will also work if user inputs The Sign so use noSongInput var to keep track
 		if (songName === "The Sign" && noSongInput === true) {
+			//console and log title and artist(s)
 			console.log(data.tracks.items[3].name + " by "  + data.tracks.items[3].artists[0].name);
-			console.log("It's from the album called " + data.tracks.items[3].album.name);
-			console.log("You can even listen to part of the song at " + data.tracks.items[3].preview_url);
-			console.log("You probably should have picked your own title!");
-			//append to log.txt
 			fs.appendFile("log.txt", data.tracks.items[3].name + " by "  + data.tracks.items[3].artists[0].name + "\n", function(error){
 				if (error){
 					console.log("There was an error adding data to log. Details: " + error);
 				}
 			});
+			//console and log album title
+			console.log("It's from the album called " + data.tracks.items[3].album.name);
 			fs.appendFile("log.txt", "It's from the album called " + data.tracks.items[3].album.name + "\r", function(error){
 				if (error){
 					console.log("There was an error adding data to log. Details: " + error);
 				}
 			});
+			//console and log preview url
+			console.log("You can even listen to part of the song at " + data.tracks.items[3].preview_url);
 			fs.appendFile("log.txt", "You can even listen to part of the song at " + data.tracks.items[3].preview_url + "\r", function(error){
 				if (error){
 					console.log("There was an error adding data to log. Details: " + error);
 				}
 			});
+			//console and log extra message
+			console.log("You probably should have picked your own title!");
 			fs.appendFile("log.txt", "You probably should have picked your own title!" + "\r", function(error){
 				if (error){
 					console.log("There was an error adding data to log. Details: " + error);
 				}
 			});
 			
- 		}	
+ 		} //end of if no title was input
+
  		else{
  			//if no song data is returned 
  			if (data.tracks.items[0] === undefined) {
  				console.log("I'm sorry :( I can't find that song.  Can you check your spelling or try another song?");
+ 				fs.appendFile("log.txt", "I'm sorry :( I can't find that song.  Can you check your spelling or try another song?\n", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
  			}
  			//return one information for 1 random song from list of title matches
 			else {
 				var randomSongIndex = Math.floor(Math.random() * (data.tracks.items.length));
+				//console and log song title 
 				console.log("Is this the right " + data.tracks.items[randomSongIndex].name + "?  If not, try again and you might get a different " + data.tracks.items[randomSongIndex].name + "! Fun, right?");
+				fs.appendFile("log.txt", "Is this the right " + data.tracks.items[randomSongIndex].name + "?\r If not, try again and you might get a different " + data.tracks.items[randomSongIndex].name + "! Fun, right?\n", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
+				//console and log the artist(s)
 				console.log("The artist(s) are: ");
+				fs.appendFile("log.txt", "The artist(s) are: \r", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
 				for (var i = 0; i < data.tracks.items[randomSongIndex].artists.length; i++) {
 					console.log(data.tracks.items[randomSongIndex].artists[i].name);
+					fs.appendFile("log.txt", data.tracks.items[randomSongIndex].artists[i].name + "\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+					});
 				};
+				//console and log the album
 				console.log("It's from the album called " + data.tracks.items[randomSongIndex].album.name);
+				fs.appendFile("log.txt", "It's from the album called " + data.tracks.items[randomSongIndex].album.name + "\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+				});
+				//console and log the preview url
 				console.log("You can even listen to part of the song at " + data.tracks.items[randomSongIndex].preview_url);
-			}
-		}//end of else return a random title match
+				fs.appendFile("log.txt", "You can even listen to part of the song at: \r" + data.tracks.items[randomSongIndex].preview_url + "\r", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
+			}//end of else return a random title match
+		}//end of else a song was entered
 	})//end of spotify search
 };//end of spotifyThis function
 
