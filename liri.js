@@ -39,7 +39,7 @@ function spotifyThis(songName) {
 		query: songName
 	}, function(error, data) {
 		if (error) {
-			console.log("Sorry I've encoutered an error! Here's more details if they're useful to you: " + error);
+			console.log("Sorry I've encountered an error! Here's more details if they're useful to you: " + error);
 			return;
 		};
 	
@@ -154,15 +154,34 @@ inquirer.prompt([
 		case "my-tweets":
 			var params = {screen_name: "CatWoala"};
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
+				//console and log intro
 				console.log("Ok " + user.userName + ", here are my last 20 tweets:");
+				fs.appendFile("log.txt", "Ok " + user.userName + ", here are my last 20 tweets:\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+				});
+
 				for (var i = 0; i < 20; i++) {
 					//to get rid of formatting error from moment.js and to work in all browsers
 					var formattedDate = moment(tweets[i].created_at, "ddd MMMDD HH:mm:ss Z YYYY");
-					
+					//console and log last 20 tweet dates
 					console.log(moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
+					fs.appendFile("log.txt", moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+					});
+					//console and log last 20 tweets
 					console.log(tweets[i].text);
-				};
-			})
+					fs.appendFile("log.txt", tweets[i].text + "\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+
+					});
+				} // end of for loop
+			}); //end of call to twitter
 			break; // end of if command is my-tweets
 
 		//if command is spotify
@@ -181,7 +200,7 @@ inquirer.prompt([
 				console.log ("Hey " + user.userName + "! You didn't enter a song so here's someone else's favorite song!")
 				song.songName = "The Sign";
 				noSongInput = true;
-				}
+				};
 
 				spotifyThis(song.songName);
 			});
@@ -201,32 +220,87 @@ inquirer.prompt([
 
 				if (movie.movieName === "" ) {
 					console.log ("Hey " + user.userName + "! You didn't enter a movie so here's someone else's favorite movie!")
+					fs.appendFile("log.txt", "Hey " + user.userName + "! You didn't enter a movie so here's someone else's favorite movie!\r", function(error){
+						if (error){
+							console.log("There was an error adding data to log. Details: " + error);
+						}
+
+					});
+
 					movie.movieName = "Mr.Nobody";
 				}
 				
 				request("http://www.omdbapi.com/?t=" + movie.movieName + "&y=&tomatoes=true", function(error, response, body){
 					if (error) {
-						console.log("Sorry I've encoutered an error! Here's more details if they're useful to you: " + error);
+						console.log("Sorry I've encountered an error! Here's more details if they're useful to you: " + error);
 						return;
 					}
 
 					//if no movie data is returned 
  					if (JSON.parse(body).Title === undefined) {
  						console.log("I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?");
+ 						fs.appendFile("log.txt", "I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+
+						});
  					}
+
  					//if movie data is returned
 					else {
+						//console and log movie title
 						console.log("Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":");
+						fs.appendFile("log.txt", "Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+						});
+						//console and log year, country and language
 						console.log("It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!");
+						fs.appendFile("log.txt", "It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+						});
+						//console and log plot
 						console.log(JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot);
+						fs.appendFile("log.txt", JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot + "\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+						});
+						//console and log actors
 						console.log("The main actors are: " + JSON.parse(body).Actors);
+						fs.appendFile("log.txt", "The main actors are: " + JSON.parse(body).Actors + "\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+						});
+						//console and log imdb rating
 						console.log("The IMDB rating is: " + JSON.parse(body).imdbRating);
-						//check if Rotten Tomatoes link is available and give appropriate message
+						fs.appendFile("log.txt", "The IMDB rating is: " + JSON.parse(body).imdbRating + "\r", function(error){
+							if (error){
+								console.log("There was an error adding data to log. Details: " + error);
+							}
+						});
+
+						//check if Rotten Tomatoes link is available and console/log appropriate message
 						if (JSON.parse(body).tomatoURL !== "N/A") {
 							console.log("If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL);
+							fs.appendFile("log.txt", "If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL + "\r", function(error){
+								if (error){
+									console.log("There was an error adding data to log. Details: " + error);
+								}
+							});
 						}
 						else {
 							console.log("I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?");
+							fs.appendFile("log.txt", "I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?\r", function(error){
+								if (error){
+									console.log("There was an error adding data to log. Details: " + error);
+								}
+							});
 						}	
 					}	
 					
