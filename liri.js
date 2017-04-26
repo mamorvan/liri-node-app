@@ -50,6 +50,28 @@ function spotifyThis(songName) {
 			console.log("It's from the album called " + data.tracks.items[3].album.name);
 			console.log("You can even listen to part of the song at " + data.tracks.items[3].preview_url);
 			console.log("You probably should have picked your own title!");
+			//append to log.txt
+			fs.appendFile("log.txt", data.tracks.items[3].name + " by "  + data.tracks.items[3].artists[0].name + "\n", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			fs.appendFile("log.txt", "It's from the album called " + data.tracks.items[3].album.name + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			fs.appendFile("log.txt", "You can even listen to part of the song at " + data.tracks.items[3].preview_url + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			fs.appendFile("log.txt", "You probably should have picked your own title!" + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			
  		}	
  		else{
  			//if no song data is returned 
