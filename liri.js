@@ -57,6 +57,7 @@ inquirer.prompt([
 		case "my-tweets":
 			var params = {screen_name: "CatWoala"};
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
+				console.log("Ok " + user.userName + ", here are my last 20 tweets:");
 				for (var i = 0; i < 20; i++) {
 					console.log(moment(tweets[i].created_at).fromNow() + " on " + moment(tweets[i].created_at).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
 					console.log(tweets[i].text);
@@ -71,7 +72,7 @@ inquirer.prompt([
 			{
 			type: "input",
 			name: "songName",
-			message: "What is the title of the song?"
+			message: "Hey " + user.userName + "! What's the title of the song?"
 			}
 
 			]).then(function(song) {
@@ -87,19 +88,43 @@ inquirer.prompt([
 			{
 			type: "input",
 			name: "movieName",
-			message: "What is the title of the movie?"
+			message: "Hey " + user.userName + "! What's the title of the movie?"
 			}
 
 			]).then(function(movie) {
-				console.log(movie.movieName);
+
+				if (movie.movieName === "" ) {
+					console.log ("Hey " + user.userName + "! You didn't enter a movie so here's someone else's favorite movie!")
+					movie.movieName = "Mr.Nobody";
+				}
+				
+				request("http://www.omdbapi.com/?t=" + movie.movieName + "&y=&tomatoes=true", function(error, response, body){
+
+					if (!error && response.statusCode === 200) {
+						
+						console.log("Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":");
+						console.log("It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!");
+						console.log(JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot);
+						console.log("The main actors are: " + JSON.parse(body).Actors);
+						console.log("The IMDB rating is: " + JSON.parse(body).imdbRating);
+						//check if Rotten Tomatoes link is available and give appropriate message
+						if (JSON.parse(body).tomatoURL !== "N/A") {
+							console.log("If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL);
+						}
+						else {
+							console.log("I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?");
+						}	
+					}
+					else {
+						console.log(error);
+					}
+				})
 			});
 			break;
 
 		//if command is do what it says
 		case "do-what-it-says":
-			fs.readFile("random.txt", "utf8", function(error,data) {
-			
-			
+			fs.readFile("random.txt", "utf8", function(error,data) {		
 			var randomSong = data;
 			console.log(randomSong);
 			spotifyThis(randomSong);
