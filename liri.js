@@ -29,7 +29,39 @@ var client = new twitter({
 	access_token_secret: keys.twitterKeys.access_token_secret
 });
 
+//to check if spotify song input was blank or actually The Sign
+var noSongInput = false;
+
+//use for spotify-this and do-what-it-says
 function spotifyThis(songName) {
+	spotify.search({
+		type: "track",
+		query: songName
+	}, function(error, data) {
+		if (error) {
+			console.log("Error: " + error);
+			return;
+		};
+		//to only get The Sign by Ace of Base - no randomization 
+		//in case of no user input, this is default but will also work if user inputs The Sign as a title
+		if (songName === "The Sign" && noSongInput === true) {
+			console.log(data.tracks.items[3].name + " by "  + data.tracks.items[3].artists[0].name);
+			console.log("It's from the album called " + data.tracks.items[3].album.name);
+			console.log("You can even listen to part of the song at " + data.tracks.items[3].preview_url);
+			console.log("You probably should have picked your own title!");
+ 		}	
+ 		else{
+ 			//return one information for 1 random song from list of title matches
+			var randomSongIndex = Math.floor(Math.random() * (data.tracks.items.length));
+			console.log("Is this the right " + data.tracks.items[randomSongIndex].name + "?  If not, try again and you might get a different " + data.tracks.items[randomSongIndex].name + "! Fun, right?");
+			console.log("The artist(s) are: ");
+			for (var i = 0; i < data.tracks.items[randomSongIndex].artists.length; i++) {
+				console.log(data.tracks.items[randomSongIndex].artists[i].name);
+			};
+			console.log("It's from the album called " + data.tracks.items[randomSongIndex].album.name);
+			console.log("You can even listen to part of the song at " + data.tracks.items[randomSongIndex].preview_url);
+		}//end of else return a random title match
+	})
 
 
 };
@@ -79,7 +111,13 @@ inquirer.prompt([
 			}
 
 			]).then(function(song) {
-				console.log(song.songName);
+				//if user doesn't enter a song title
+				if (song.songName === "" ) {
+				console.log ("Hey " + user.userName + "! You didn't enter a song so here's someone else's favorite song!")
+				song.songName = "The Sign";
+				noSongInput = true;
+				}
+
 				spotifyThis(song.songName);
 			});
 			break;
