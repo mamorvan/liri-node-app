@@ -59,7 +59,10 @@ inquirer.prompt([
 			client.get("statuses/user_timeline", params, function(error, tweets, response){
 				console.log("Ok " + user.userName + ", here are my last 20 tweets:");
 				for (var i = 0; i < 20; i++) {
-					console.log(moment(tweets[i].created_at).fromNow() + " on " + moment(tweets[i].created_at).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
+					//to get rid of formatting error from moment.js and to work in all browsers
+					var formattedDate = moment(tweets[i].created_at, "ddd MMMDD HH:mm:ss Z YYYY");
+					
+					console.log(moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
 					console.log(tweets[i].text);
 				};
 			})
