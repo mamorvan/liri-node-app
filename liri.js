@@ -39,11 +39,12 @@ function spotifyThis(songName) {
 		query: songName
 	}, function(error, data) {
 		if (error) {
-			console.log("Error: " + error);
+			console.log("Sorry I've encoutered an error! Here's more details if they're useful to you: " + error);
 			return;
 		};
+	
 		//to only get The Sign by Ace of Base - no randomization 
-		//in case of no user input, this is default but will also work if user inputs The Sign as a title
+		//in case of no user input, this is default but will also work if user inputs The Sign so use noSongInput var to keep track
 		if (songName === "The Sign" && noSongInput === true) {
 			console.log(data.tracks.items[3].name + " by "  + data.tracks.items[3].artists[0].name);
 			console.log("It's from the album called " + data.tracks.items[3].album.name);
@@ -51,20 +52,24 @@ function spotifyThis(songName) {
 			console.log("You probably should have picked your own title!");
  		}	
  		else{
+ 			//if no song data is returned 
+ 			if (data.tracks.items[0] === undefined) {
+ 				console.log("I'm sorry :( I can't find that song.  Can you check your spelling or try another song?");
+ 			}
  			//return one information for 1 random song from list of title matches
-			var randomSongIndex = Math.floor(Math.random() * (data.tracks.items.length));
-			console.log("Is this the right " + data.tracks.items[randomSongIndex].name + "?  If not, try again and you might get a different " + data.tracks.items[randomSongIndex].name + "! Fun, right?");
-			console.log("The artist(s) are: ");
-			for (var i = 0; i < data.tracks.items[randomSongIndex].artists.length; i++) {
-				console.log(data.tracks.items[randomSongIndex].artists[i].name);
-			};
-			console.log("It's from the album called " + data.tracks.items[randomSongIndex].album.name);
-			console.log("You can even listen to part of the song at " + data.tracks.items[randomSongIndex].preview_url);
+			else {
+				var randomSongIndex = Math.floor(Math.random() * (data.tracks.items.length));
+				console.log("Is this the right " + data.tracks.items[randomSongIndex].name + "?  If not, try again and you might get a different " + data.tracks.items[randomSongIndex].name + "! Fun, right?");
+				console.log("The artist(s) are: ");
+				for (var i = 0; i < data.tracks.items[randomSongIndex].artists.length; i++) {
+					console.log(data.tracks.items[randomSongIndex].artists[i].name);
+				};
+				console.log("It's from the album called " + data.tracks.items[randomSongIndex].album.name);
+				console.log("You can even listen to part of the song at " + data.tracks.items[randomSongIndex].preview_url);
+			}
 		}//end of else return a random title match
-	})
-
-
-};
+	})//end of spotify search
+};//end of spotifyThis function
 
 //create user command line interface - get user name and command
 inquirer.prompt([
@@ -140,9 +145,17 @@ inquirer.prompt([
 				}
 				
 				request("http://www.omdbapi.com/?t=" + movie.movieName + "&y=&tomatoes=true", function(error, response, body){
+					if (error) {
+						console.log("Sorry I've encoutered an error! Here's more details if they're useful to you: " + error);
+						return;
+					}
 
-					if (!error && response.statusCode === 200) {
-						
+					//if no movie data is returned 
+ 					if (JSON.parse(body).Title === undefined) {
+ 						console.log("I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?");
+ 					}
+ 					//if movie data is returned
+					else {
 						console.log("Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":");
 						console.log("It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!");
 						console.log(JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot);
@@ -155,12 +168,10 @@ inquirer.prompt([
 						else {
 							console.log("I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?");
 						}	
-					}
-					else {
-						console.log(error);
-					}
-				})
-			});
+					}	
+					
+				}) //end of request to omdb
+			}); //end of .then for user input movie title
 			break;
 
 		//if command is do what it says
