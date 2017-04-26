@@ -196,7 +196,7 @@ inquirer.prompt([
 
 			]).then(function(song) {
 				//if user doesn't enter a song title
-				if (song.songName === "" ) {
+				if (song.songName === "" || song.songName === ";") {
 				console.log ("Hey " + user.userName + "! You didn't enter a song so here's someone else's favorite song!")
 				song.songName = "The Sign";
 				noSongInput = true;
