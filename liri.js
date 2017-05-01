@@ -32,7 +32,40 @@ var client = new twitter({
 //to check if spotify song input was blank or actually The Sign
 var noSongInput = false;
 
-//use for spotify-this and do-what-it-says
+//---------------FUNCTIONS____________________//
+function tweetThis(user) {
+	var params = {screen_name: "CatWoala"};
+	client.get("statuses/user_timeline", params, function(error, tweets, response){
+		//console and log intro
+		console.log("Ok " + user + ", here are my last 20 tweets:");
+		fs.appendFile("log.txt", "Ok " + user + ", here are my last 20 tweets:\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+		});
+
+		for (var i = 0; i < 20; i++) {
+			//to get rid of formatting error from moment.js and to work in all browsers
+			var formattedDate = moment(tweets[i].created_at, "ddd MMMDD HH:mm:ss Z YYYY");
+			//console and log last 20 tweet dates
+			console.log(moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
+			fs.appendFile("log.txt", moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			//console and log last 20 tweets
+			console.log(tweets[i].text);
+			fs.appendFile("log.txt", tweets[i].text + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+
+			});
+		} // end of for loop
+	}); //end of call to twitter
+};//end of tweetThis function
+
 function spotifyThis(songName) {
 	spotify.search({
 		type: "track",
@@ -146,7 +179,85 @@ function spotifyThis(songName) {
 	})//end of spotify search
 };//end of spotifyThis function
 
-//create user command line interface - get user name and command
+function movieThis(movie, user) {
+	request("http://www.omdbapi.com/?t=" + movie + "&y=&tomatoes=true", function(error, response, body){
+		if (error) {
+			console.log("Sorry I've encountered an error! Here's more details if they're useful to you: " + error);
+			return;
+		}
+
+		//if no movie data is returned 
+			if (JSON.parse(body).Title === undefined) {
+				console.log("I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?");
+				fs.appendFile("log.txt", "I'm sorry :( I can't find that movie.  Can you check your spelling or try another movie?\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+
+			});
+			}
+
+			//if movie data is returned
+		else {
+			//console and log movie title
+			console.log("Ok " + user + ", here is some information on " + JSON.parse(body).Title + ":");
+			fs.appendFile("log.txt", "Ok " + user + ", here is some information on " + JSON.parse(body).Title + ":\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			//console and log year, country and language
+			console.log("It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!");
+			fs.appendFile("log.txt", "It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			//console and log plot
+			console.log(JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot);
+			fs.appendFile("log.txt", JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			//console and log actors
+			console.log("The main actors are: " + JSON.parse(body).Actors);
+			fs.appendFile("log.txt", "The main actors are: " + JSON.parse(body).Actors + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+			//console and log imdb rating
+			console.log("The IMDB rating is: " + JSON.parse(body).imdbRating);
+			fs.appendFile("log.txt", "The IMDB rating is: " + JSON.parse(body).imdbRating + "\r", function(error){
+				if (error){
+					console.log("There was an error adding data to log. Details: " + error);
+				}
+			});
+
+			//check if Rotten Tomatoes link is available and console/log appropriate message
+			if (JSON.parse(body).tomatoURL !== "N/A") {
+				console.log("If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL);
+				fs.appendFile("log.txt", "If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL + "\r", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
+			}
+			else {
+				console.log("I'm so sorry " + user+ ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?");
+				fs.appendFile("log.txt", "I'm so sorry " + user + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?\r", function(error){
+					if (error){
+						console.log("There was an error adding data to log. Details: " + error);
+					}
+				});
+			}	
+		}	
+		
+	}) //end of request to omdb
+}//end of movieThis function
+
+//------------------------create user command line interface ------------------------//
 inquirer.prompt([
 
 	{
@@ -167,36 +278,7 @@ inquirer.prompt([
 
 		//if command is my-tweets
 		case "my-tweets":
-			var params = {screen_name: "CatWoala"};
-			client.get("statuses/user_timeline", params, function(error, tweets, response){
-				//console and log intro
-				console.log("Ok " + user.userName + ", here are my last 20 tweets:");
-				fs.appendFile("log.txt", "Ok " + user.userName + ", here are my last 20 tweets:\r", function(error){
-						if (error){
-							console.log("There was an error adding data to log. Details: " + error);
-						}
-				});
-
-				for (var i = 0; i < 20; i++) {
-					//to get rid of formatting error from moment.js and to work in all browsers
-					var formattedDate = moment(tweets[i].created_at, "ddd MMMDD HH:mm:ss Z YYYY");
-					//console and log last 20 tweet dates
-					console.log(moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:");
-					fs.appendFile("log.txt", moment(formattedDate).fromNow() + " on " + moment(formattedDate).format("MMMM Do YYYY, h:mm a") + ", I tweeted this gem:\r", function(error){
-						if (error){
-							console.log("There was an error adding data to log. Details: " + error);
-						}
-					});
-					//console and log last 20 tweets
-					console.log(tweets[i].text);
-					fs.appendFile("log.txt", tweets[i].text + "\r", function(error){
-						if (error){
-							console.log("There was an error adding data to log. Details: " + error);
-						}
-
-					});
-				} // end of for loop
-			}); //end of call to twitter
+			tweetThis(user.userName);
 			break; // end of if command is my-tweets
 
 		//if command is spotify
@@ -244,91 +326,33 @@ inquirer.prompt([
 
 					movie.movieName = "Mr.Nobody";
 				}
+
+				movieThis(movie.movieName, user.userName);
 				
-				request("http://www.omdbapi.com/?t=" + movie.movieName + "&y=&tomatoes=true", function(error, response, body){
-					if (error) {
-						console.log("Sorry I've encountered an error! Here's more details if they're useful to you: " + error);
-						return;
-					}
-
-					//if no movie data is returned 
- 					if (JSON.parse(body).Title === undefined) {
- 						console.log("I'm sorry :( I can't find that movie.  Can you check your spelling or try another song?");
- 						fs.appendFile("log.txt", "I'm sorry :( I can't find that movie.  Can you check your spelling or try another movie?\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-
-						});
- 					}
-
- 					//if movie data is returned
-					else {
-						//console and log movie title
-						console.log("Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":");
-						fs.appendFile("log.txt", "Ok " + user.userName + ", here is some information on " + JSON.parse(body).Title + ":\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-						});
-						//console and log year, country and language
-						console.log("It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!");
-						fs.appendFile("log.txt", "It came out in " + JSON.parse(body).Year + " and it was made in " + JSON.parse(body).Country + " so it's in " + JSON.parse(body).Language + "!\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-						});
-						//console and log plot
-						console.log(JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot);
-						fs.appendFile("log.txt", JSON.parse(body).Title + " is about: " + JSON.parse(body).Plot + "\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-						});
-						//console and log actors
-						console.log("The main actors are: " + JSON.parse(body).Actors);
-						fs.appendFile("log.txt", "The main actors are: " + JSON.parse(body).Actors + "\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-						});
-						//console and log imdb rating
-						console.log("The IMDB rating is: " + JSON.parse(body).imdbRating);
-						fs.appendFile("log.txt", "The IMDB rating is: " + JSON.parse(body).imdbRating + "\r", function(error){
-							if (error){
-								console.log("There was an error adding data to log. Details: " + error);
-							}
-						});
-
-						//check if Rotten Tomatoes link is available and console/log appropriate message
-						if (JSON.parse(body).tomatoURL !== "N/A") {
-							console.log("If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL);
-							fs.appendFile("log.txt", "If you want even more information, you can check out the Rotten Tomatoes reviews of " +  JSON.parse(body).Title + " at " + JSON.parse(body).tomatoURL + "\r", function(error){
-								if (error){
-									console.log("There was an error adding data to log. Details: " + error);
-								}
-							});
-						}
-						else {
-							console.log("I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?");
-							fs.appendFile("log.txt", "I'm so sorry " + user.userName + ". I don't seem to have a Rotten Tomatoes link for " + JSON.parse(body).Title + ". Maybe you can try IMDB?\r", function(error){
-								if (error){
-									console.log("There was an error adding data to log. Details: " + error);
-								}
-							});
-						}	
-					}	
-					
-				}) //end of request to omdb
 			}); //end of .then for user input movie title
 			break;
 
 		//if command is do what it says
 		case "do-what-it-says":
-			fs.readFile("random.txt", "utf8", function(error,data) {		
-			var randomSong = data;
-			console.log(randomSong);
-			spotifyThis(randomSong);
+			fs.readFile("random.txt", "utf8", function(error, data) {		
+			var dataArr = data.split(",");
+			var command = dataArr[0];
+			var title = "";
+
+			if (dataArr.length === 2) {
+				title = dataArr[1];
+			};
+
+			if (command === "spotify-this-song") {
+				spotifyThis(title);
+			}
+			else if (command === "movie-this") {
+				movieThis(title, "random text user");
+			}
+			else {
+				tweetThis("random text user");
+			}
+		
 			});
 			break;
 
